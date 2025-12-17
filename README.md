@@ -48,3 +48,7 @@ The app talks to the backend using these paths:
 - **Responsive Layout**: On a computer, the New Snippet form stays on the left and the list is on the right. On a phone, everything stacks into one column.
 - **Background**: There is a canvas animation that makes code characters fall down the screen.
 - **Code Highlight**: I used a library called `react-syntax-highlighter` so the code looks like it is in a real editor.
+
+## Link for the working app
+
+https://snippet-frontend-2k3b.onrender.com
