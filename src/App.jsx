@@ -1,7 +1,75 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
+
+// --- Falling Code Animation Component ---
+const FallingCode = () => {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    let animationFrameId;
+
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const characters = "01<>/{}[]();:+=*-!&|%".split("");
+    const fontSize = 14;
+    const columns = canvas.width / fontSize;
+    const drops = Array(Math.floor(columns)).fill(1);
+
+    const draw = () => {
+      // Create trailing effect with slight transparency
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Animation color: Subtle grey to match background
+      ctx.fillStyle = '#d0d7de'; 
+      ctx.font = `${fontSize}px monospace`;
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = characters[Math.floor(Math.random() * characters.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+      animationFrameId = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'fixed',
+        top: 0,
+        right: 0,
+        width: '50vw', // Only covers the right side
+        height: '100vh',
+        zIndex: -1,   // Stays behind the content
+        opacity: 0.4, // Blends into the white background
+        pointerEvents: 'none' // Ensures you can still click buttons underneath
+      }}
+    />
+  );
+};
 
 function App() {
   const [snippets, setSnippets] = useState([]);
@@ -11,7 +79,6 @@ function App() {
 
   const API_URL = import.meta.env.VITE_API_BASE_URL + '/snippets';
 
-  // Define fetchSnippets using useCallback to satisfy ESLint
   const fetchSnippets = useCallback(async () => {
     try {
       const res = await axios.get(API_URL);
@@ -23,7 +90,6 @@ function App() {
     }
   }, [API_URL]);
 
-  // UseEffect calls the memoized function
   useEffect(() => {
     fetchSnippets();
   }, [fetchSnippets]);
@@ -56,24 +122,24 @@ function App() {
     s.title.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Basic System Font Stack
   const systemFont = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif';
 
   return (
     <div style={{ backgroundColor: '#ffffff', minHeight: '100vh', padding: '40px', fontFamily: systemFont, color: '#1f2328' }}>
-      <div style={{ maxWidth: '1400px', margin: 'auto' }}>
+      {/* Animation sits in the background */}
+      <FallingCode />
+
+      <div style={{ maxWidth: '1400px', margin: 'auto', position: 'relative' }}>
         
-        <header style={{ borderBottom: '1px solid #d0d7de', paddingBottom: '20px', marginBottom: '40px' }}>
+        <header style={{ borderBottom: '1px solid #d0d7de', paddingBottom: '20px', marginBottom: '40px', background: 'rgba(255,255,255,0.8)' }}>
           <h1 style={{ fontSize: '24px', fontWeight: '600', margin: '0' }}>Code Snippet Library</h1>
           <p style={{ color: '#636c76', marginTop: '8px' }}>Internal development knowledge base.</p>
         </header>
 
-        {/* Two-Column Grid for Full Screen */}
         <div style={{ display: 'grid', gridTemplateColumns: '350px 1fr', gap: '40px', alignItems: 'start' }}>
           
-          {/* Left: Sticky Form */}
           <aside style={{ position: 'sticky', top: '40px' }}>
-            <div style={{ border: '1px solid #d0d7de', padding: '24px', borderRadius: '6px' }}>
+            <div style={{ border: '1px solid #d0d7de', padding: '24px', borderRadius: '6px', background: 'white' }}>
               <h3 style={{ marginTop: '0', fontSize: '16px', marginBottom: '16px' }}>New Snippet</h3>
               <form onSubmit={handleSubmit}>
                 <input 
@@ -102,13 +168,12 @@ function App() {
             </div>
           </aside>
 
-          {/* Right: Search and Results */}
           <main>
             <input 
               type="text" 
               placeholder="Search by title or language..." 
               onChange={(e) => setSearch(e.target.value)} 
-              style={{ ...inputStyle, padding: '16px', marginBottom: '24px', fontSize: '16px' }} 
+              style={{ ...inputStyle, padding: '16px', marginBottom: '24px', fontSize: '16px', background: 'white' }} 
             />
 
             {loading ? (
@@ -116,7 +181,7 @@ function App() {
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(450px, 1fr))', gap: '20px' }}>
                 {filteredSnippets.map(s => (
-                  <div key={s._id} style={{ border: '1px solid #d0d7de', borderRadius: '6px', overflow: 'hidden' }}>
+                  <div key={s._id} style={{ border: '1px solid #d0d7de', borderRadius: '6px', overflow: 'hidden', background: 'white' }}>
                     <div style={{ padding: '12px 16px', backgroundColor: '#f6f8fa', borderBottom: '1px solid #d0d7de', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontWeight: '600', fontSize: '14px' }}>{s.title} ({s.language})</span>
                       <button onClick={() => deleteSnippet(s._id)} style={{ color: '#cf222e', background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px' }}>Delete</button>
