@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism'; // Switched to Dark theme
 
 // --- Falling Code Animation Component ---
-const FallingCode = () => {
+const BackgroundAnimation = () => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -12,33 +12,32 @@ const FallingCode = () => {
     const ctx = canvas.getContext('2d');
     let animationFrameId;
 
-    const resizeCanvas = () => {
+    const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
 
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+    window.addEventListener('resize', resize);
+    resize();
 
-    const characters = "01<>/{}[]();:+=*-!&|%".split("");
-    const fontSize = 14;
-    const columns = canvas.width / fontSize;
-    const drops = Array(Math.floor(columns)).fill(1);
+    const columns = Math.floor(canvas.width / 20);
+    const drops = new Array(columns).fill(1);
+    const chars = "01<>{}[]()/\\+=-*#!?".split("");
 
     const draw = () => {
-      // Create trailing effect with slight transparency
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+      // Create trailing effect for dark mode
+      ctx.fillStyle = 'rgba(13, 17, 23, 0.15)'; 
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Animation color: Subtle grey to match background
-      ctx.fillStyle = '#d0d7de'; 
-      ctx.font = `${fontSize}px monospace`;
+      // Dark gray characters for a subtle look
+      ctx.fillStyle = '#30363d';
+      ctx.font = '15px monospace';
 
       for (let i = 0; i < drops.length; i++) {
-        const text = characters[Math.floor(Math.random() * characters.length)];
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        const text = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(text, i * 20, drops[i] * 20);
 
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+        if (drops[i] * 20 > canvas.height && Math.random() > 0.975) {
           drops[i] = 0;
         }
         drops[i]++;
@@ -47,9 +46,8 @@ const FallingCode = () => {
     };
 
     draw();
-
     return () => {
-      window.removeEventListener('resize', resizeCanvas);
+      window.removeEventListener('resize', resize);
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
@@ -60,12 +58,9 @@ const FallingCode = () => {
       style={{
         position: 'fixed',
         top: 0,
-        right: 0,
-        width: '50vw', // Only covers the right side
-        height: '100vh',
-        zIndex: -1,   // Stays behind the content
-        opacity: 0.4, // Blends into the white background
-        pointerEvents: 'none' // Ensures you can still click buttons underneath
+        left: 0,
+        zIndex: -1,
+        pointerEvents: 'none',
       }}
     />
   );
@@ -125,22 +120,19 @@ function App() {
   const systemFont = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif';
 
   return (
-    <div style={{ backgroundColor: '#ffffff', minHeight: '100vh', padding: '40px', fontFamily: systemFont, color: '#1f2328' }}>
-      {/* Animation sits in the background */}
-      <FallingCode />
-
+    <div style={{ backgroundColor: '#0d1117', minHeight: '100vh', padding: '40px', fontFamily: systemFont, color: '#c9d1d9' }}>
+      <BackgroundAnimation />
+      
       <div style={{ maxWidth: '1400px', margin: 'auto', position: 'relative' }}>
-        
-        <header style={{ borderBottom: '1px solid #d0d7de', paddingBottom: '20px', marginBottom: '40px', background: 'rgba(255,255,255,0.8)' }}>
-          <h1 style={{ fontSize: '24px', fontWeight: '600', margin: '0' }}>Code Snippet Library</h1>
-          <p style={{ color: '#636c76', marginTop: '8px' }}>Internal development knowledge base.</p>
+        <header style={{ borderBottom: '1px solid #30363d', paddingBottom: '20px', marginBottom: '40px' }}>
+          <h1 style={{ fontSize: '24px', fontWeight: '600', margin: '0', color: '#f0f6fc' }}>Code Snippet Library</h1>
+          <p style={{ color: '#8b949e', marginTop: '8px' }}>Internal development knowledge base.</p>
         </header>
 
         <div style={{ display: 'grid', gridTemplateColumns: '350px 1fr', gap: '40px', alignItems: 'start' }}>
-          
           <aside style={{ position: 'sticky', top: '40px' }}>
-            <div style={{ border: '1px solid #d0d7de', padding: '24px', borderRadius: '6px', background: 'white' }}>
-              <h3 style={{ marginTop: '0', fontSize: '16px', marginBottom: '16px' }}>New Snippet</h3>
+            <div style={{ border: '1px solid #30363d', padding: '24px', borderRadius: '6px', backgroundColor: '#161b22' }}>
+              <h3 style={{ marginTop: '0', fontSize: '16px', marginBottom: '16px', color: '#f0f6fc' }}>New Snippet</h3>
               <form onSubmit={handleSubmit}>
                 <input 
                   placeholder="Title" 
@@ -173,26 +165,26 @@ function App() {
               type="text" 
               placeholder="Search by title or language..." 
               onChange={(e) => setSearch(e.target.value)} 
-              style={{ ...inputStyle, padding: '16px', marginBottom: '24px', fontSize: '16px', background: 'white' }} 
+              style={{ ...inputStyle, padding: '16px', marginBottom: '24px', fontSize: '16px', backgroundColor: '#0d1117' }} 
             />
 
             {loading ? (
-              <p>Loading collection...</p>
+              <p style={{ color: '#8b949e' }}>Loading collection...</p>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(450px, 1fr))', gap: '20px' }}>
                 {filteredSnippets.map(s => (
-                  <div key={s._id} style={{ border: '1px solid #d0d7de', borderRadius: '6px', overflow: 'hidden', background: 'white' }}>
-                    <div style={{ padding: '12px 16px', backgroundColor: '#f6f8fa', borderBottom: '1px solid #d0d7de', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontWeight: '600', fontSize: '14px' }}>{s.title} ({s.language})</span>
-                      <button onClick={() => deleteSnippet(s._id)} style={{ color: '#cf222e', background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px' }}>Delete</button>
+                  <div key={s._id} style={{ border: '1px solid #30363d', borderRadius: '6px', overflow: 'hidden', backgroundColor: '#161b22' }}>
+                    <div style={{ padding: '12px 16px', backgroundColor: '#21262d', borderBottom: '1px solid #30363d', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontWeight: '600', fontSize: '14px', color: '#f0f6fc' }}>{s.title} ({s.language})</span>
+                      <button onClick={() => deleteSnippet(s._id)} style={{ color: '#f85149', background: 'none', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: 'bold' }}>Delete</button>
                     </div>
-                    <SyntaxHighlighter language={s.language.toLowerCase()} style={oneLight} customStyle={{ margin: 0, padding: '16px', fontSize: '13px' }}>
+                    <SyntaxHighlighter language={s.language.toLowerCase()} style={oneDark} customStyle={{ margin: 0, padding: '16px', fontSize: '13px', background: 'transparent' }}>
                       {s.code}
                     </SyntaxHighlighter>
-                    <div style={{ padding: '10px', borderTop: '1px solid #d0d7de', textAlign: 'right' }}>
+                    <div style={{ padding: '10px', borderTop: '1px solid #30363d', textAlign: 'right' }}>
                       <button 
                         onClick={() => { navigator.clipboard.writeText(s.code); alert("Copied"); }}
-                        style={{ ...buttonStyle, backgroundColor: '#f6f8fa', color: '#1f2328', border: '1px solid #d0d7de', padding: '5px 10px', fontSize: '12px' }}
+                        style={copyButtonStyle}
                       >
                         Copy Code
                       </button>
@@ -208,7 +200,37 @@ function App() {
   );
 }
 
-const inputStyle = { width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #d0d7de', boxSizing: 'border-box' };
-const buttonStyle = { width: '100%', backgroundColor: '#24292f', color: 'white', border: 'none', padding: '12px', borderRadius: '4px', fontWeight: '600', cursor: 'pointer', marginTop: '16px' };
+const inputStyle = { 
+  width: '100%', 
+  padding: '10px', 
+  borderRadius: '4px', 
+  border: '1px solid #30363d', 
+  boxSizing: 'border-box', 
+  backgroundColor: '#0d1117', 
+  color: '#c9d1d9',
+  outline: 'none'
+};
+
+const buttonStyle = { 
+  width: '100%', 
+  backgroundColor: '#238636',
+  color: 'white', 
+  border: 'none', 
+  padding: '12px', 
+  borderRadius: '4px', 
+  fontWeight: '600', 
+  cursor: 'pointer', 
+  marginTop: '16px' 
+};
+
+const copyButtonStyle = { 
+  backgroundColor: '#21262d', 
+  color: '#c9d1d9', 
+  border: '1px solid #30363d', 
+  padding: '5px 10px', 
+  fontSize: '12px', 
+  borderRadius: '4px', 
+  cursor: 'pointer' 
+};
 
 export default App;
