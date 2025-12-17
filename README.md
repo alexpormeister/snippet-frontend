@@ -1,16 +1,50 @@
-# React + Vite
+# Code Snippet Library
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a full-stack app where you can save, search, and delete code snippets. It has a clean dark-mode design and a cool falling code animation in the background. It is also fully responsive, so it works on phones and computers.
 
-Currently, two official plugins are available:
+## How to Install and Run
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 1. Prerequisites
 
-## React Compiler
+- You need Node.js installed on your computer.
+- You need npm (this usually comes with Node).
+- You need a GitHub account to host the code.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 2. Backend Setup
 
-## Expanding the ESLint configuration
+The frontend needs your Project 2 API to work.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- Go to your backend folder and run: `npm install`
+- Make sure your .env file has your `MONGODB_URI` so it can connect to the database.
+- Start the server by running: `node server.js`
+
+### 3. Frontend Setup
+
+- Clone this repo to your computer.
+- Open the folder and run: `npm install`
+- Create a .env file in the main folder (see the section below).
+- Run: `npm run dev`
+
+## Environment Variables
+
+The frontend needs to know where your backend is. Use this variable in your .env file:
+
+| Variable          | What it does                 | Example                                |
+| :---------------- | :--------------------------- | :------------------------------------- |
+| VITE_API_BASE_URL | The link to your backend API | https://your-api-link.onrender.com/api |
+
+**Note**: When you put this on Render, you have to add this same variable in the Render dashboard settings.
+
+## How the API Works
+
+The app talks to the backend using these paths:
+
+- **GET /snippets**: Gets all the snippets from the database to show them on the screen.
+- **POST /snippets**: Sends the title, language, and code you typed to the database.
+- **DELETE /snippets/:id**: Tells the database to remove a specific snippet using its ID.
+
+## Project Design
+
+- **Responsive Layout**: On a computer, the New Snippet form stays on the left and the list is on the right. On a phone, everything stacks into one column.
+- **Background**: There is a canvas animation that makes code characters fall down the screen.
+- **Code Highlight**: I used a library called `react-syntax-highlighter` so the code looks like it is in a real editor.
