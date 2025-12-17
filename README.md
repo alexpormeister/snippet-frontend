@@ -12,11 +12,11 @@ This is a full-stack app where you can save, search, and delete code snippets. I
 
 ### 2. Backend Setup
 
-### Instructions README for backend.
+### 2.1 Instructions README for backend.
 
 https://snippet-frontend-2k3b.onrender.com/
 
-The frontend needs your Project 2 API to work.
+The frontend needs your backend API to work.
 
 - Go to your backend folder and run: `npm install`
 - Make sure your .env file has your `MONGODB_URI` so it can connect to the database.
